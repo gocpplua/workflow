@@ -111,17 +111,14 @@ CommMessageOut *__ComplexKafkaTask::message_out()
 		while ((toppar = req->get_toppar_list()->get_next()) != NULL)
 		{
 			if (toppar->get_low_watermark() == -2)
-			{
 				toppar->set_offset_timestamp(-2);
-				toppar_list.add_item(*toppar);
-				flag = true;
-			}
 			else if (toppar->get_offset() == -1)
-			{
 				toppar->set_offset_timestamp(this->get_req()->get_config()->get_offset_timestamp());
-				toppar_list.add_item(*toppar);
-				flag = true;
-			}
+			else
+				continue;
+
+			toppar_list.add_item(*toppar);
+			flag = true;
 		}
 
 		if (flag)

@@ -88,14 +88,14 @@ using counter_callback_t = std::function<void (WFCounterTask *)>;
 // Graph (DAG) task.
 using graph_callback_t = std::function<void (WFGraphTask *)>;
 
-// DNS task. For internal usage only.
-using WFDNSTask = WFThreadTask<DNSInput, DNSOutput>;
-using dns_callback_t = std::function<void (WFDNSTask *)>;
-
 using WFEmptyTask = WFGenericTask;
 
 using WFDynamicTask = WFGenericTask;
 using dynamic_create_t = std::function<SubTask *(WFDynamicTask *)>;
+
+// DNS task. For internal usage only.
+using WFDNSTask = WFThreadTask<DNSInput, DNSOutput>;
+using dns_callback_t = std::function<void (WFDNSTask *)>;
 
 class WFTaskFactory
 {
@@ -251,7 +251,8 @@ public:
 								 std::function<void (T *)> callback);
 
 public:
-	static T *create_server_task(std::function<void (T *)>& process);
+	static T *create_server_task(CommService *service,
+								 std::function<void (T *)>& process);
 };
 
 template<class INPUT, class OUTPUT>

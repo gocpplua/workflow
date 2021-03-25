@@ -39,6 +39,8 @@
 #include "Executor.h"
 #include "WFTask.h"
 #include "WFTaskError.h"
+#include "WFNameService.h"
+#include "WFDNSResolver.h"
 
 class __WFGlobal
 {
@@ -515,6 +517,28 @@ private:
 	Executor compute_executor_;
 };
 
+class __NameServiceManager
+{
+public:
+	static __NameServiceManager *get_instance()
+	{
+		static __NameServiceManager kInstance;
+		return &kInstance;
+	}
+
+public:
+	WFNameService *get_name_service() { return &service_; }
+
+private:
+	static WFDNSResolver resolver_;
+	WFNameService service_;
+
+public:
+	__NameServiceManager() : service_(&__NameServiceManager::resolver_) { }
+};
+
+WFDNSResolver __NameServiceManager::resolver_;
+
 CommScheduler *WFGlobal::get_scheduler()
 {
 	return __CommManager::get_instance()->get_scheduler();
@@ -563,6 +587,11 @@ ExecQueue *WFGlobal::get_dns_queue()
 Executor *WFGlobal::get_dns_executor()
 {
 	return __CommManager::get_instance()->get_dns_executor();
+}
+
+WFNameService *WFGlobal::get_name_service()
+{
+	return __NameServiceManager::get_instance()->get_name_service();
 }
 
 const char *WFGlobal::get_default_port(const std::string& scheme)
@@ -685,6 +714,9 @@ static inline const char *__get_task_error_string(int error)
 
 	case WFT_ERR_MYSQL_COMMAND_DISALLOWED:
 		return "MySQL Command Disallowed";
+
+	case WFT_ERR_MYSQL_QUERY_NOT_SET:
+		return "MySQL Query Not Set";
 
 	case WFT_ERR_KAFKA_PARSE_RESPONSE_FAILED:
 		return "Kafka parse response failed";
